@@ -355,6 +355,8 @@ Navigate to frontend folder in terminal
 
 Run `npm install`
 
+Run `npm install ethers@5`
+
 Run `npm run start` to view current frontend of our page
 
 Copy the **CrowdFund.json** file from the artifacts/contracts folder in the blockchain folder into the src folder in the frontend
@@ -399,7 +401,7 @@ const onClickConnect = async () => {
     signer = provider.getSigner();
     
     setContract(
-      new ethers.Contract(contractAddress, firstContract.abi, signer)
+      new ethers.Contract(contractAddress, fundme.abi, signer)
     );
   }; 
 ```
@@ -489,7 +491,7 @@ const handleClaim = async (e) => {
 
 ```javascript
 const handleView = async (e) => {
-		e.preventdefault();
+		e.preventDefault();
     if (viewModle == true) {
       setViewModle(!viewModle);
       return;

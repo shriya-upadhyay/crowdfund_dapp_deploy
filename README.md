@@ -351,6 +351,186 @@ You can view your transaction at https://sepolia.etherscan.io/ by copy pasting t
 
 ## Integrate with Frontend
 
+Navigate to frontend folder in terminal
+
+Run `npm install`
+
+Run `npm run start` to view current frontend of our page
+
+Copy the **CrowdFund.json** file from the artifacts/contracts folder in the blockchain folder into the src folder in the frontend
+
+Add `import fundme from "./CrowdFund.json";` into the top of the App.js file
+
+### Create a contract object in App.js
+
+At the top of the App() function, add the following code:
+
+```javascript
+const [contract, setContract] = useState();
+const contractAddress = "<YOUR_CONTRACT_ADDRESS>";
+let signer;
+
+```
+
+
+Add your contract's address from earlier in the contractAddress variable.
+
+
+### Update the OnClickConnect function
+
+Store information about the signer, contract abi, and contract address when instantiating the contract object
+
+Update your onClickConnect function to appear like the one below:
+
+```javascript
+const onClickConnect = async () => {
+    if (!window.ethereum) {
+      alert("please install MetaMask");
+      return;
+    }
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    provider
+      .send("eth_requestAccounts", [])
+      .then((accounts) => {
+        if (accounts.length > 0) setCurrentAccount(accounts[0]);
+      })
+      .catch((e) => console.log(e));
+
+    signer = provider.getSigner();
+    
+    setContract(
+      new ethers.Contract(contractAddress, firstContract.abi, signer)
+    );
+  }; 
+```
+## Frontend Javascript Functions
+
+### handleCreate
+
+Add the following handleCreate function to your App.js file:
+
+```javascript
+const handleCreate = async (e) => {
+    e.preventDefault();
+    // we need to create a campaign
+    if (contract == undefined) {
+      return;
+    }
+    // get the current time in unix epoch value and add the minutes entered by the user
+    let start = parseInt(Date.now() / 1000 + 60 * startBlock);
+    let finish = parseInt(Date.now() / 1000 + 60 * endBlock);
+    let launchGoal = ethers.utils.parseEther(goal);
+
+    const tx = await contract.launch(launchGoal, start, finish);
+    
+    await tx.wait();
+      
+    setStartBlock("");
+    setEndBlock("");
+    setGoal("");
+  };
+```
+
+- Wait for user to connect to Metamask wallet before proceeding
+- Prevent page refresh (or the typical form submission behavior) when the user clicks to create a campaign
+- If contract variable hasn’t been set yet, we can’t create a campaign so return
+- Date.now() / 1000 gets the current time in milliseconds since Unix epoch and converts to seconds and adds to startBlock or endBlock (user input for start time or end time in minutes) to calculate start and finish time
+- Parse user input and convert the goal to wei (the smallest unit of Ether) and the result is a BigNumber which ethers.js uses to handle large numbers so our smart contract can evaluate them
+- Then, we can call the launch function in the contract, passing in the goal, start, and finish functions
+- Reset startblock, endblock, and goal variables in JS
+
+
+### handlePledge
+
+```javascript
+const handlePledge = async (e) => {
+  e.preventDefault();
+  await onClickConnect();
+  // we need to pledge funds to the campaign
+  if (contract == undefined) {
+    return;
+  }
+  const options = { value: ethers.utils.parseEther(pledgeAmount) };
+  await contract.pledge(pledgeId, options);
+
+  setPledgeAmount("");
+  setPledgeId("");
+};
+```
+
+- Wait for user to connect to Metamask wallet before proceeding
+- Prevent page refresh (or the typical form submission behavior) when the user clicks to create a campaign
+- If contract variable hasn’t been set yet, we can’t create a campaign so return
+- Parse user input for the pledge amount and convert the goal to wei (the smallest unit of Ether) and the result is a BigNumber which ethers.js uses to handle large numbers so our smart contract can evaluate them. This BigNumber is stored in an options object which can contain other optional properties like gasLimit (The maximum amount of gas units the transaction can consume) and gasPrice (The price per gas unit you’re willing to pay)
+
+### handleClaim
+
+```javascript
+const handleClaim = async (e) => {
+    e.preventDefault();
+    await onClickConnect();
+    // we need to claim the funds from the campaign
+    if (contract == undefined) {
+      return;
+    }
+    await contract.claim(claimId);
+
+    setClaimId("");
+  };
+```
+
+- Wait for user to connect to Metamask wallet before proceeding
+- Prevent page refresh (or the typical form submission behavior) when the user clicks to create a campaign
+- If contract variable hasn’t been set yet, we can’t create a campaign so return
+- Call claim function in the contract, passing in the user input claimID
+- Reset claimID variable in JS
+
+### handleView
+
+```javascript
+const handleView = async (e) => {
+		e.preventdefault();
+    if (viewModle == true) {
+      setViewModle(!viewModle);
+      return;
+    }
+    if (claimId < 0 || claimId == "" || contract == undefined) {
+      alert("Please enter a valid campaign ID");
+      return;
+    }
+    // We need to get the campaign from the blockchain and save it to campaign state
+    let camp = await contract.campaigns(claimId);
+    setCampaign({
+      id: claimId,
+      startBlock: camp[3],
+      endBlock: camp[4],
+      goal: ethers.utils.formatEther(camp[1]),
+      totalPledged: ethers.utils.formatEther(camp[2]),
+      claimed: camp[5],
+    });
+
+    setViewModle(!viewModle);
+    setClaimId("");
+  };
+```
+
+- If we’re already viewing the modal with a contract, toggle the modal off and return
+- Validate that the claimID is valid and that the contract exits
+- Wait for user to connect to Metamask wallet before proceeding
+- Prevent page refresh (or the typical form submission behavior) when the user clicks to create a campaign
+- Access contract’s campaigns state variable and find the campaign we are looking for based on the id passed in by the user
+- Update the javascript’s campaign object based on information about the campaign in the smart contract; the format ether function from ethers.js allows us to format from wei to ether
+- Toggle viewmodal off
+- Reset claimID variable in JS
+
+
+# Congrats on finishing your Crowdfunding dApp! 🎊💸
+
+#### Feel free to reach out with any questions!
+
+
+
+
 
 
 

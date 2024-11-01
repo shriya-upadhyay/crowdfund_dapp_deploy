@@ -278,9 +278,73 @@ Create a function campaign that takes in the campaign id for the campaign
 - Return all of the data members of the Campaign struct
 
 
+## Update hardhat.config.ts
+Update the config function to below code (we will add the endpoint URL Later):
+```solidity
+// hardhat.config.ts
+import { HardhatUserConfig } from "hardhat/config";
+import "@nomicfoundation/hardhat-toolbox";
 
+const Private_Key = "YOUR_PRIVATE_KEY";
 
+const config: HardhatUserConfig = {
+  solidity: "0.8.18",
+  networks: {
+    sepolia: {
+      url: `YOUR_RPC_URL_ENDPOINT`,
+      accounts: [`0x${Private_Key}`],
+    },
+  },
+};
 
+export default config;
+
+```
+*Inside of hardhat.config.ts, add your private key as a string (enclose it in quotes)*
+
+## Deploy Script
+
+Create a folder called **scripts** within the blockchain folder and  add a file to it called deploy.ts
+
+Copy the following code into it: 
+
+```solidity
+// scripts/deploy.ts
+
+import { ethers } from "hardhat";
+
+async function main () {
+  // We get the contract to deploy
+  const crowdfund = await ethers.deployContract("CrowdFund");
+
+ console.log('Deploying Contract...');
+ //Program waits until counter is deployed before moving onto next line of code
+ await crowdfund.waitForDeployment();
+
+ //prints the countract's target, its address on the blockchain
+console.log(`Crowdfund deployed to: ${crowdfund.target}`);
+}
+
+main()
+  .then(() => process.exit(0))
+  .catch(error => {
+    console.error(error);
+    process.exit(1);
+  });
+```
+
+## Run and Deploy Smart Contract
+Run `npx hardhat compile` to compile the smart contract
+
+Run `npx hardhat run scripts/deploy.ts --network sepolia` to run the script to deploy the smart contract
+
+You should see an output like: 
+
+>Counter deployed to: 0x75F7921BB70b3C6c0e88a0808C335F9d369fEbC3
+
+You can view your transaction at https://sepolia.etherscan.io/ by copy pasting the address into the search bar
+
+**_Save_** your address, we’ll use it again later!
 
 
 

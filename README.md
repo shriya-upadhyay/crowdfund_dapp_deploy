@@ -1,13 +1,13 @@
 # Crowdfunding dApp
 
-## Environment Setup
+### Environment Setup
 
 - Fork the repo at https://github.com/BlockchainUSC/Spring-2023-Build-Night-2
 - Navigate to the folder where you want to store your repo in your terminal
 - Clone the repo by typing `git clone <URL>`, where `<URL>` is the link that appears after hitting the green **Code** button in the top right of your repo.
 
 
-## Getting Started
+### Getting Started
 - Open the folder that contains the repo for Build Night 2 in Visual Studio Code (or your preferred IDE)
 - Create a new Terminal window by hitting terminal in the top left and clicking new terminal
 - Navigate to the Build Night 2 folder in terminal
@@ -15,7 +15,7 @@
 - Create a new folder called blockchain: `mkdir blockchain`
 - Navigate to the blockchain folder: `cd blockchain`
 
-## Setting up Hardhat
+### Setting up Hardhat
 - Run the command `npm install -d hardhat@latest @nomicfoundation/hardhat-ethers ethers@6.1.0`
   - Installs Hardhat, Hardhat plugin for ethers.js, and the ethers.js library
 - Run the command: `npx hardhat init`
@@ -24,7 +24,7 @@
   - add gitignore: y 
   - Install this sample project’s dependencies with npm: y
 
-## What is Crowdfunding?
+### What is Crowdfunding?
 - **Crowdfunding**: a way to raise funds from a large number of people/entities to support a business, project, or even a concept
 - Terminology 
   - **Campaign**: Specific fundraising project (includes cause, timeline, and goal)
@@ -33,7 +33,7 @@
   - **Claim**: Creator of the campaign ends the campaign and withdraws the pledged funds to use on the project 
   - **Refund**: If a campaign fails or is cancelled, refund is used to return money to the backers who pledged money to the campaign
 
-## Crowdfund Smart Contract
+### Crowdfund Smart Contract
 - Inside of blockchain/contracts, delete Lock.sol and create a file called CrowdFund.sol  and copy the following code into the file:
 ```solidity
 // SPDX-License-Identifier: MIT
@@ -55,7 +55,7 @@ contract CrowdFund {
 ```
 
 
-## Campaign Struct
+### Campaign Struct
 
 Copy the following code into the file:
 
@@ -86,7 +86,7 @@ We are creating a campaign struct to record data about a campaign including:
 - The ending time 
 - If the creator has claimed the pledged funds and ended the campaign
 
-## Contract State Variables
+### Contract State Variables
 Copy the following code into the file:
 
 ```solidity
@@ -107,7 +107,7 @@ These are our contract’s **state** variables: their values are permanently sto
 - The count variable keeps track of # of campaigns created 
 - The second is a map of key: type unsigned int to value: Campaign (the struct we defined earlier). Mapping campaign ids to campaigns in a public hashmap meaning it can be accessed by the contract internally and externally by users
 
-## Launch Function
+### Launch Function
 Copy the following code into the file:
 
 ```solidity
@@ -143,7 +143,7 @@ _Notes_
 - msg.sender is a global variable that refers to the address of the account or wallet that called the current function 
 - Emitting the launch event logs the creation of the campaign including campaign id, address of creator, goal and start and end times
 
-## Cancel Function
+### Cancel Function
 Copy the following code into the file:
 ```solidity
 function cancel(uint _id) external {
@@ -166,7 +166,7 @@ Create a function cancel that takes in the campaign id for the campaign
 - It doesn’t actual delete the struct (unlike C++), rather it sets all of the data members to 0 so if you try to access it, you will see a campaign struct with all values set to 0 
 - Emitting the cancel event logs the cancellation of the campaign including campaign id
 
-## Pledge Function
+### Pledge Function
 Copy the following code into the file:
 
 ```solidity
@@ -192,7 +192,7 @@ Create a function pledge that takes in the campaign id for the campaign
 - Also update the pledge amount state variable map, access the hashmap associated with the campaign’s id and increment the amount that the address has pledged by the value that address pledged 
 - Emitting the Pledge event logs the new pledge to the campaign including campaign id, pledger address, and pledged amount
 
-## Unpledge Function
+### Unpledge Function
 Copy the following code into the file:
 
 ```solidity
@@ -222,7 +222,7 @@ function unpledge(uint _id, uint _amount) external {
 - Emitting the Unpledge event logs the new pledge to the campaign including campaign id, pledger address, and unpledged amount
 
 
-## Claim Function
+### Claim Function
 Copy the following code into the file:
 
 ```solidity
@@ -252,7 +252,7 @@ Create a function claim that takes in the campaign id for the campaign
 - **Payable** means we can send ETH to the msg.sender (the address that called the claim function), and transfer allows us to transfer that amount to the address’ wallet 
 - Emitting the Claim event logs the new claim of the campaign including campaign id
 
-## Get Campaign Function
+### Get Campaign Function
 Copy the following code into the file:
 
 ```solidity
@@ -278,7 +278,7 @@ Create a function campaign that takes in the campaign id for the campaign
 - Return all of the data members of the Campaign struct
 
 
-## Update hardhat.config.ts
+### Update hardhat.config.ts
 Update the config function to below code (we will add the endpoint URL Later):
 ```solidity
 // hardhat.config.ts
@@ -302,7 +302,9 @@ export default config;
 ```
 *Inside of hardhat.config.ts, add your private key as a string (enclose it in quotes)*
 
-## Deploy Script
+Follow [slides](https://docs.google.com/presentation/d/1xdg0rA4LAnQ_z0KawWPDZ7PYjTHXLxOPf_et7FiCZI8/edit?usp=sharing) for instructions on how to get Sepolia Test ETH, create Alchemy RPC Endpoint, and access your private key.
+
+### Deploy Script
 
 Create a folder called **scripts** within the blockchain folder and  add a file to it called deploy.ts
 
@@ -333,7 +335,7 @@ main()
   });
 ```
 
-## Run and Deploy Smart Contract
+### Run and Deploy Smart Contract
 Run `npx hardhat compile` to compile the smart contract
 
 Run `npx hardhat run scripts/deploy.ts --network sepolia` to run the script to deploy the smart contract
@@ -347,7 +349,7 @@ You can view your transaction at https://sepolia.etherscan.io/ by copy pasting t
 **_Save_** your address, we’ll use it again later!
 
 
-
+## Integrate with Frontend
 
 
 

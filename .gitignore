@@ -1,3 +1,10 @@
 node_modules
 .DS_Store
 start/blockchain/.env
+start/blockchain/artifacts/
+start/blockchain/cache/
+start/blockchain/ignition/
+start/blockchain/typechain-types/
+
+start/blockchain/node_modules/
+start/blockchain/package-lock.json

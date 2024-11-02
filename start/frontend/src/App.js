@@ -2,9 +2,13 @@ import logo from "./logo.svg";
 import "./App.css";
 import { useState } from "react";
 import { ethers } from "ethers";
+import fundme from "./CrowdFund.json";
 
 function App() {
   const [currentAccount, setCurrentAccount] = useState();
+  const [contract, setContract] = useState();
+  const contractAddress = "0x6EF8D935ed1fdb0e084f9ec33F6B5E588A705718";
+  let signer;
   const [camp, setCamp] = useState([-1]);
   const [claimId, setClaimId] = useState("");
   const [pledgeId, setPledgeId] = useState("");
@@ -25,9 +29,19 @@ function App() {
   // We need to change these 4 functions to use the new contract
 
   const handleCreate = async (e) => {
-    await onClickConnect();
     e.preventDefault();
     // we need to create a campaign
+    if (contract == undefined) {
+      return;
+    }
+    // get the current time in unix epoch value and add the minutes entered by the user
+    let start = parseInt(Date.now() / 1000 + 60 * startBlock);
+    let finish = parseInt(Date.now() / 1000 + 60 * endBlock);
+    let launchGoal = ethers.utils.parseEther(goal);
+
+    const tx = await contract.launch(launchGoal, start, finish);
+
+    await tx.wait();
 
     setStartBlock("");
     setEndBlock("");
@@ -38,6 +52,11 @@ function App() {
     e.preventDefault();
     await onClickConnect();
     // we need to pledge funds to the campaign
+    if (contract == undefined) {
+      return;
+    }
+    const options = { value: ethers.utils.parseEther(pledgeAmount) };
+    await contract.pledge(pledgeId, options);
 
     setPledgeAmount("");
     setPledgeId("");
@@ -47,22 +66,34 @@ function App() {
     e.preventDefault();
     await onClickConnect();
     // we need to claim the funds from the campaign
+    if (contract == undefined) {
+      return;
+    }
+    await contract.claim(claimId);
 
     setClaimId("");
   };
 
   const handleView = async (e) => {
+    e.preventDefault();
     if (viewModle == true) {
       setViewModle(!viewModle);
       return;
     }
-    if (claimId < 0 || claimId == "") {
+    if (claimId < 0 || claimId == "" || contract == undefined) {
+      alert("Please enter a valid campaign ID");
       return;
     }
-    await onClickConnect();
-    e.preventDefault();
-
-    // We need to get the campaign from the blockchain and save it to state
+    // We need to get the campaign from the blockchain and save it to campaign state
+    let camp = await contract.campaigns(claimId);
+    setCampaign({
+      id: claimId,
+      startBlock: camp[3],
+      endBlock: camp[4],
+      goal: ethers.utils.formatEther(camp[1]),
+      totalPledged: ethers.utils.formatEther(camp[2]),
+      claimed: camp[5],
+    });
 
     setViewModle(!viewModle);
     setClaimId("");
@@ -75,11 +106,17 @@ function App() {
     }
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     provider
-      .send("eth_requestAccounts", [])
-      .then((accounts) => {
-        if (accounts.length > 0) setCurrentAccount(accounts[0]);
-      })
-      .catch((e) => console.log(e));
+        .send("eth_requestAccounts", [])
+        .then((accounts) => {
+          if (accounts.length > 0) setCurrentAccount(accounts[0]);
+        })
+        .catch((e) => console.log(e));
+
+    signer = provider.getSigner();
+
+    setContract(
+        new ethers.Contract(contractAddress, fundme.abi, signer)
+    );
   };
 
   return (

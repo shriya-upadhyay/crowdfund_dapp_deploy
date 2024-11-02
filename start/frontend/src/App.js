@@ -7,7 +7,7 @@ import fundme from "./CrowdFund.json";
 function App() {
   const [currentAccount, setCurrentAccount] = useState();
   const [contract, setContract] = useState();
-  const contractAddress = "0x6EF8D935ed1fdb0e084f9ec33F6B5E588A705718";
+  const contractAddress = "0x322d9b7df9DF4d634017A6789faC61B2a3015f92";
   let signer;
   const [camp, setCamp] = useState([-1]);
   const [claimId, setClaimId] = useState("");

@@ -41,7 +41,7 @@ contract CrowdFund {
     constructor() {
     }
 
-    function launch(uint _goal, uint32 _startAt, uint32 _endAt) external {
+    function launch(uint _goal, uint32 _startAt, uint32 _endAt) external returns (uint id) {
         require(_startAt >= block.timestamp, "start at < now");
         require(_endAt >= _startAt, "end at < start at");
         require(_endAt <= block.timestamp + 90 days, "end at > max duration");
@@ -57,6 +57,7 @@ contract CrowdFund {
         });
 
         emit Launch(count, msg.sender, _goal, _startAt, _endAt);
+        return count;
     }
     function cancel(uint _id) external {
         Campaign memory campaign = campaigns[_id];

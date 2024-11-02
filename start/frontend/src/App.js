@@ -7,7 +7,7 @@ import fundme from "./CrowdFund.json";
 function App() {
   const [currentAccount, setCurrentAccount] = useState();
   const [contract, setContract] = useState();
-  const contractAddress = "0x322d9b7df9DF4d634017A6789faC61B2a3015f92";
+  const contractAddress = "0xD889F9B8844246F70B4c7876A611EaE06622F2e4";
   let signer;
   const [camp, setCamp] = useState([-1]);
   const [claimId, setClaimId] = useState("");
@@ -41,7 +41,17 @@ function App() {
 
     const tx = await contract.launch(launchGoal, start, finish);
 
-    await tx.wait();
+    const receipt = await tx.wait();
+        // Assuming the campaign ID is emitted in the event
+    const launchEvent = receipt.events.find(event => event.event === "Launch");
+
+    if (launchEvent) {
+      const { id, creator, goal } = launchEvent.args;
+      alert(`Campaign created with ID: ${id.toString()} by ${creator} with a goal of ${ethers.utils.formatEther(goal)}`);
+    } else {
+        alert.error("Launch event not found in the transaction receipt.");
+    }
+    
 
     setStartBlock("");
     setEndBlock("");

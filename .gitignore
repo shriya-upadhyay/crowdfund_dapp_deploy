@@ -8,3 +8,6 @@ start/blockchain/typechain-types/
 
 start/blockchain/node_modules/
 start/blockchain/package-lock.json
+.vercel
+
+finish
